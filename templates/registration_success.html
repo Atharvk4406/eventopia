@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+.success-container{
+max-width:600px;
+margin:80px auto;
+background:white;
+padding:40px;
+border-radius:15px;
+box-shadow:0 15px 35px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.success-icon{
+font-size:60px;
+color:#22c55e;
+}
+
+.success-container h2{
+color:#4f46e5;
+margin-top:10px;
+}
+
+.success-details{
+margin-top:20px;
+font-size:18px;
+}
+
+.success-btn{
+margin-top:25px;
+padding:12px 25px;
+background:#6366f1;
+color:white;
+border:none;
+border-radius:8px;
+text-decoration:none;
+}
+
+</style>
+
+<div class="success-container">
+
+<div class="success-icon">✅</div>
+
+<h2>Registration Successful!</h2>
+
+<p class="success-details">
+
+Congratulations <b>{{name}}</b> 🎉
+
+<br><br>
+
+You are registered for
+
+<b>{{event.name}}</b>
+
+<br><br>
+
+Category: <b>{{category.category_name}}</b><br>
+Venue: <b>{{event.venue}}</b><br>
+Date: <b>{{event.event_date}}</b><br>
+Time: <b>{{event.event_time}}</b>
+
+</p>
+
+<p style="color:green;">
+A confirmation email has been sent to your email.
+</p>
+
+<a href="/events" class="success-btn">Back to Events</a>
+
+</div>
+
+{% endblock %}

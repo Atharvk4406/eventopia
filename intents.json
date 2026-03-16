@@ -1,0 +1,81 @@
+{
+ "intents":[
+
+ {
+ "tag":"events_list",
+ "patterns":[
+ "what events are available",
+ "show events",
+ "tell me about events",
+ "what programs are happening",
+ "list all events"
+ ],
+ "responses":[
+ "Here are the available events.",
+ "You can check the events on the Events page.",
+ "Our college is organizing several events. I can show you the list."
+ ]
+ },
+
+ {
+ "tag":"event_fee",
+ "patterns":[
+ "what is the fee",
+ "which events have fees",
+ "event price",
+ "cost of events",
+ "fees for sports event"
+ ],
+ "responses":[
+ "The fee depends on the event. You can check it in the events section.",
+ "Each event has a different registration fee.",
+ "Please check the event details page for fee information."
+ ]
+ },
+
+ {
+ "tag":"event_details",
+ "patterns":[
+ "event details",
+ "tell me about events",
+ "where are events held",
+ "when are events"
+ ],
+ "responses":[
+ "You can see the event details including date and venue on the events page.",
+ "Each event has its own date and venue listed in the event section.",
+ "Check the events page for full details about each event."
+ ]
+ },
+
+ {
+ "tag":"register",
+ "patterns":[
+ "how to register",
+ "how to enroll",
+ "how to join event",
+ "registration process"
+ ],
+ "responses":[
+ "To register, go to the events page, select an event, and click register.",
+ "Open the events section and fill the registration form.",
+ "You can register for an event by clicking the register button."
+ ]
+ 
+ },
+ {
+"tag":"event_categories",
+"patterns":[
+"event categories",
+"what categories are there",
+"categories in sports event",
+"categories in photography event",
+"what competitions are there"
+],
+"responses":[
+"Let me check the categories for that event."
+]
+}
+
+ ]
+}

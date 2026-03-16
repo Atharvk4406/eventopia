@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+.form-container{
+max-width:550px;
+margin:80px auto;
+background:white;
+padding:40px;
+border-radius:15px;
+box-shadow:0 15px 35px rgba(0,0,0,0.1);
+}
+
+.form-container h2{
+text-align:center;
+margin-bottom:25px;
+color:#4f46e5;
+}
+
+.form-group{
+margin-bottom:15px;
+}
+
+.form-group input,
+.form-group select{
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid #ddd;
+font-size:15px;
+}
+
+.btn-submit{
+width:100%;
+padding:12px;
+background:linear-gradient(90deg,#6366f1,#8b5cf6);
+color:white;
+border:none;
+border-radius:8px;
+font-size:16px;
+cursor:pointer;
+}
+
+.btn-submit:hover{
+opacity:0.9;
+}
+
+</style>
+
+<div class="form-container">
+
+<h2>Register for {{category.category_name}}</h2>
+
+<form method="POST">
+
+<div class="form-group">
+<input type="text" name="name" placeholder="Full Name" required>
+</div>
+
+<div class="form-group">
+<input type="email" name="email" placeholder="Email Address" required>
+</div>
+
+<div class="form-group">
+<input type="text" name="phone" placeholder="Phone Number" required>
+</div>
+
+<div class="form-group">
+<input type="text" name="branch" placeholder="Branch (CSE, IT, EXTC)" required>
+</div>
+
+<div class="form-group">
+<select name="class" required>
+<option value="">Select Class</option>
+<option value="FY">First Year</option>
+<option value="SY">Second Year</option>
+<option value="TY">Third Year</option>
+<option value="BE">Final Year</option>
+</select>
+</div>
+
+<button type="submit" class="btn-submit">Submit Registration</button>
+
+</form>
+
+</div>
+
+{% endblock %}

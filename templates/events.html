@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+}
+
+.events-hero{
+background:linear-gradient(135deg,#667eea,#764ba2);
+padding:110px 40px 80px;
+text-align:center;
+color:white;
+}
+
+.events-hero h1{
+font-size:3rem;
+margin-bottom:10px;
+}
+
+.filter-container{
+max-width:1200px;
+margin:-40px auto 40px;
+padding:25px;
+background:#ffffff;
+border-radius:15px;
+display:flex;
+gap:20px;
+flex-wrap:wrap;
+box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+
+.filter-group{
+flex:1;
+min-width:200px;
+}
+
+.filter-group label{
+display:block;
+font-weight:600;
+margin-bottom:5px;
+}
+
+.filter-group select,
+.filter-group input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #ddd;
+}
+
+.events-grid{
+max-width:1200px;
+margin:auto;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:30px;
+}
+
+.event-card{
+background:white;
+border-radius:15px;
+overflow:hidden;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+transition:0.3s;
+}
+
+.event-card:hover{
+transform:translateY(-8px);
+box-shadow:0 15px 35px rgba(0,0,0,0.2);
+}
+
+.event-card img{
+width:100%;
+height:200px;
+object-fit:cover;
+}
+
+.event-content{
+padding:20px;
+}
+
+.event-meta{
+font-size:14px;
+color:#666;
+margin:10px 0;
+}
+
+.event-footer{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:15px;
+}
+
+.btn-register{
+background:#6c63ff;
+color:white;
+padding:8px 18px;
+border-radius:8px;
+text-decoration:none;
+font-size:14px;
+display:inline-block;
+}
+
+.btn-register:hover{
+background:#5147d8;
+}
+
+</style>
+
+
+<section class="events-hero">
+<h1>🎯 Discover Events</h1>
+<p>Find the perfect event that matches your interests</p>
+</section>
+
+
+<div class="filter-container">
+
+<div class="filter-group">
+<label>🔍 Search</label>
+<input type="text" id="searchFilter" placeholder="Search event">
+</div>
+
+<div class="filter-group">
+<label>📁 Category</label>
+<select id="categoryFilter">
+<option value="all">All</option>
+<option value="tech">Technology</option>
+<option value="art">Art</option>
+<option value="cultural">Cultural</option>
+<option value="sports">Sports</option>
+<option value="workshop">Workshop</option>
+</select>
+</div>
+<div class="filter-group">
+<label>📅 Date Range</label>
+<select id="dateFilter">
+<option value="all">All Dates</option>
+<option value="today">Today</option>
+<option value="week">This Week</option>
+<option value="month">This Month</option>
+</select>
+</div><div class="filter-group">
+<label>💰 Price</label>
+<select id="priceFilter">
+<option value="all">All Prices</option>
+<option value="free">Free</option>
+<option value="paid">Paid</option>
+</select>
+</div>
+
+</div>
+
+
+<section style="padding:40px 20px">
+
+<div class="events-grid" id="eventsGrid">
+
+{% for event in events %}
+
+<div class="event-card"
+data-name="{{event.name}}"
+data-category="{{event.category}}"
+data-date="{{event.event_date}}"
+data-price="{{event.price}}">
+
+{% if event.image %}
+<img src="{{ url_for('static', filename='uploads/' ~ event.image) }}">
+{% else %}
+<img src="{{ url_for('static', filename='uploads/default.jpg') }}">
+{% endif %}
+
+<div class="event-content">
+
+<h3>{{event.name}}</h3>
+
+<p>{{event.description}}</p>
+
+<div class="event-meta">
+📍 {{event.venue}} <br>
+📅 {{event.event_date}} <br>
+⏰ {{event.event_time}}
+</div>
+
+<div class="event-footer">
+
+<div>
+{% if event.price == 0 %}
+Free
+{% else %}
+₹{{event.price}}
+{% endif %}
+</div>
+
+<a href="/event_categories/{{event.id}}" class="btn-register">
+Register →
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</section>
+
+
+<script>
+
+const searchInput=document.getElementById("searchFilter");
+const categoryFilter=document.getElementById("categoryFilter");
+const dateFilter=document.getElementById("dateFilter");
+const priceFilter=document.getElementById("priceFilter");
+
+searchInput.addEventListener("input",applyFilters);
+categoryFilter.addEventListener("change",applyFilters);
+dateFilter.addEventListener("change",applyFilters);
+priceFilter.addEventListener("change",applyFilters);
+
+function applyFilters(){
+
+const search=searchInput.value.toLowerCase();
+const category=categoryFilter.value;
+const date=dateFilter.value;
+const price=priceFilter.value;
+
+const cards=document.querySelectorAll(".event-card");
+
+cards.forEach(card=>{
+
+let show=true;
+
+const name=card.dataset.name.toLowerCase();
+const cat=card.dataset.category;
+const eventDate=new Date(card.dataset.date);
+const eventPrice=parseInt(card.dataset.price);
+
+const today=new Date();
+
+if(search && !name.includes(search)) show=false;
+
+if(category!=="all" && cat!==category) show=false;
+
+if(price==="free" && eventPrice>0) show=false;
+if(price==="paid" && eventPrice===0) show=false;
+
+if(date==="today"){
+if(eventDate.toDateString()!==today.toDateString()) show=false;
+}
+
+if(date==="week"){
+const week=new Date(today.getTime()+7*24*60*60*1000);
+if(eventDate<today || eventDate>week) show=false;
+}
+
+if(date==="month"){
+if(eventDate.getMonth()!==today.getMonth()) show=false;
+}
+
+card.style.display=show?"block":"none";
+
+});
+
+}
+
+</script>
+
+{% endblock %}

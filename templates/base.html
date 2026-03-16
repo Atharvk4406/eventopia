@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Eventopia | College Event Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<nav>
+  <div style="display:flex;align-items:center;gap:15px;">
+    <h2 style="margin:0;">Eventhopia</h2>
+    {% if username %}
+    <span style="font-weight:bold;">👤{{username}}</span>
+    {% endif %}
+    
+  </div>
+  
+  <ul>
+    <li><a href="{{ url_for('home') }}">Home</a></li>
+    <li><a href="/events">Events</a></li>
+
+    {% if session.get('user') %}
+        
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+    {% else %}
+        
+        <li><a href="{{ url_for('register') }}">Register</a></li>
+    {% endif %}
+
+    <li><a href="/admin_login">Admin</a></li>
+    <li><a href="#" onclick="toggleAI()">AI Assistant</a></li>
+    <li><a href="/feedback">Feedback</a></li>
+  </ul>
+
+  <img src="{{ url_for('static', filename='images/moon.png') }}" id="icon" alt="Theme Icon">
+</nav>
+
+{% block content %}{% endblock %}
+<div class="ai-sidebar" id="aiSidebar">
+    <div class="ai-header">
+        <h3>🤖 AI Assistant</h3>
+        <span onclick="toggleAI()">✖</span>
+    </div>
+
+    <div class="ai-messages" id="chatBox"></div>
+
+    <div class="ai-input">
+        <input type="text" id="userInput" placeholder="Ask something...">
+        <button  type="button" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+
+<footer>
+  <footer>
+
+<div class="foot-panel">
+
+<ul>
+<h3>Eventopia</h3>
+<li>Your gateway to campus events.</li>
+</ul>
+
+<ul>
+<h3>Quick Links</h3>
+<li><a href="/">Home</a></li>
+<li><a href="/events">Events</a></li>
+<li><a href="/feedback">Feedback</a></li>
+</ul>
+
+<ul>
+<h3>College</h3>
+<li><a href="https://famt.ac.in/">About FAMT</a></li>
+<li><a href="#">Campus Map</a></li>
+</ul>
+
+</div>
+
+<p style="text-align:center;">© 2026 Eventopia</p>
+
+</footer>
+
+</footer>
+<script>
+function toggleAI() {
+    document.getElementById("aiSidebar").classList.toggle("active");
+}
+
+function sendMessage() {
+    let input = document.getElementById("userInput");
+    let message = input.value;
+
+    if(message.trim() === "") return;
+
+    console.log("Sending:", message);
+
+    fetch("/ask_ai", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: message })
+    })
+    .then(response => {
+        console.log("Raw response:", response);
+        return response.json();
+    })
+    .then(data => {
+        console.log("Server data:", data);
+
+        let chatBox = document.getElementById("chatBox");
+
+        chatBox.innerHTML += "<p><b>You:</b> " + message + "</p>";
+        chatBox.innerHTML += "<p><b>AI:</b> " + data.response + "</p>";
+
+        input.value = "";
+    })
+    .catch(error => {
+        console.error("Fetch error:", error);
+    });
+}
+</script>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

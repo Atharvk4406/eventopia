@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+
+    <h1>Don't Just Hear About It</h1>
+    <h2 class="gradient-text">Be There. Live It.</h2>
+
+    <p>
+      Join hundreds of students turning campus life into an epic experience.
+      Discover events, connect with friends, and create memories.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="/events" class="btn-primary">Explore Events</a>
+      <a href="#" onclick="toggleAI()" class="btn-secondary">Ask AI Assistant</a>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <span class="stat-number">50+</span>
+        <span class="stat-label">Events Hosted</span>
+      </div>
+
+      <div class="stat-item">
+        <span class="stat-number">2000+</span>
+        <span class="stat-label">Students Registered</span>
+      </div>
+
+      <div class="stat-item">
+        <span class="stat-number">4.9★</span>
+        <span class="stat-label">Ratings</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- COUNTDOWN -->
+<section class="countdown-section">
+  <div class="countdown-container">
+    <p class="countdown-title">🔥 Next Big Event</p>
+    <h2 class="countdown-event">STABILIA Robotics Workshop 2K26</h2>
+
+    <div class="countdown-timer">
+      <div class="countdown-item">
+        <span class="countdown-value">00</span>
+        <span class="countdown-label">Days</span>
+      </div>
+
+      <div class="countdown-item">
+        <span class="countdown-value">00</span>
+        <span class="countdown-label">Hours</span>
+      </div>
+
+      <div class="countdown-item">
+        <span class="countdown-value">00</span>
+        <span class="countdown-label">Minutes</span>
+      </div>
+
+      <div class="countdown-item">
+        <span class="countdown-value">00</span>
+        <span class="countdown-label">Seconds</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- IMAGE SLIDER -->
+<div class="carousel-container">
+  <div class="carousel-track">
+
+    <div class="slide">
+      <img src="{{ url_for('static', filename='images/1st.jpeg') }}">
+    </div>
+
+    <div class="slide">
+      <img src="{{ url_for('static', filename='images/2nd.jpeg') }}">
+    </div>
+
+    <div class="slide">
+      <img src="{{ url_for('static', filename='images/3rd.jpeg') }}">
+    </div>
+
+  </div>
+</div>
+
+
+<!-- EVENTS -->
+<section class="upcoming-events">
+
+<h2 class="section-title">Upcoming Events</h2>
+
+<div class="event-grid">
+
+<div class="event-card">
+<div class="event-image">
+<img src="{{ url_for('static', filename='images/robo.jpeg') }}">
+</div>
+
+<div class="event-content">
+
+<span class="event-category tech">Technology</span>
+
+<h3>STABILIA Robotics Workshop</h3>
+
+<p>Learn to design and build robots.</p>
+
+<div class="event-footer">
+<span>📅 Feb 6 2026</span>
+<button>Register →</button>
+</div>
+
+</div>
+</div>
+
+
+<div class="event-card">
+<div class="event-image">
+<img src="{{ url_for('static', filename='images/kalakruti.jpeg') }}">
+</div>
+
+<div class="event-content">
+
+<span class="event-category art">Art</span>
+
+<h3>Kalakruti 2K26</h3>
+
+<p>Creative competitions and art exhibitions.</p>
+
+<div class="event-footer">
+<span>📅 Jan 25 – Feb 25</span>
+<button>Register →</button>
+</div>
+
+</div>
+</div>
+
+
+<div class="event-card">
+<div class="event-image">
+<img src="{{ url_for('static', filename='images/1st.jpeg') }}">
+</div>
+
+<div class="event-content">
+
+<span class="event-category cultural">Cultural</span>
+
+<h3>UTOPIA 2K26</h3>
+
+<p>Dance, music and traditions across campus.</p>
+
+<div class="event-footer">
+<span>📅 Feb 26</span>
+<button>Register →</button>
+</div>
+
+</div>
+</div>
+
+</div>
+</section>
+
+
+<!-- FEATURES -->
+<section class="features">
+
+<h2>Platform Features</h2>
+
+<div class="features-grid">
+
+<div class="feature-card">
+<h3>🤖 AI Chatbot</h3>
+<p>Instant answers for event queries.</p>
+</div>
+
+<div class="feature-card">
+<h3>🔔 Notifications</h3>
+<p>Never miss event updates.</p>
+</div>
+
+<div class="feature-card">
+<h3>📊 Feedback Analysis</h3>
+<p>AI powered feedback insights.</p>
+</div>
+
+<div class="feature-card">
+<h3>🎫 Easy Registration</h3>
+<p>Quick event signup.</p>
+</div>
+
+</div>
+</section>
+
+
+<!-- FOOTER -->
+
+{% endblock %}
