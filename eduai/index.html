@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EduAI – Smart Learning Companion | SDG 4</title>
+  <meta name="description" content="AI-powered personalised learning platform for SDG 4 Quality Education">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand">
+    <div class="logo-icon">🎓</div>
+    <span>EduAI</span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Dashboard</a>
+    <a href="tutor.html">AI Tutor</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="planner.html">Planner</a>
+    <a href="#" class="nav-sdg">SDG 4 – Quality Education</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="sdg-badge"><i class="fa-solid fa-leaf"></i> UN Sustainable Development Goal 4</div>
+  <h1>Your AI-Powered<br>Learning Companion</h1>
+  <p>EduAI gives every student access to a personalised tutor, adaptive quizzes,<br>and smart study planning — powered by Google Gemini AI.</p>
+  <div class="hero-btns">
+    <a href="tutor.html" class="btn btn-primary"><i class="fa-solid fa-robot"></i> Start Learning with AI</a>
+    <a href="quiz.html" class="btn btn-outline"><i class="fa-solid fa-circle-question"></i> Take a Quiz</a>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-row" id="statsRow">
+  <div class="stat-card">
+    <div class="stat-num" id="statSessions">0</div>
+    <div class="stat-label"><i class="fa-solid fa-comments" style="color:var(--blue)"></i> AI Tutor Sessions</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="statQuizzes">0</div>
+    <div class="stat-label"><i class="fa-solid fa-circle-question" style="color:var(--purple)"></i> Quizzes Completed</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="statGoals">0</div>
+    <div class="stat-label"><i class="fa-solid fa-check-circle" style="color:var(--green)"></i> Goals Achieved</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="statStreak">0</div>
+    <div class="stat-label"><i class="fa-solid fa-fire" style="color:var(--yellow)"></i> Day Streak 🔥</div>
+  </div>
+</div>
+
+<!-- FEATURE CARDS -->
+<div class="section-title">
+  <h2>Features</h2>
+  <p>Everything you need to study smarter, not harder</p>
+</div>
+
+<div class="cards-grid">
+  <div class="card">
+    <div class="card-icon blue"><i class="fa-solid fa-robot"></i></div>
+    <h3>AI Subject Tutor</h3>
+    <p>Chat with Google Gemini AI about any subject — Math, Science, History, English and more. Get instant, clear explanations.</p>
+    <a href="tutor.html" class="card-link">Start chatting <i class="fa-solid fa-arrow-right"></i></a>
+  </div>
+  <div class="card">
+    <div class="card-icon purple"><i class="fa-solid fa-circle-question"></i></div>
+    <h3>AI Quiz Generator</h3>
+    <p>AI generates 5 custom multiple-choice quiz questions on any topic you choose, with instant scoring and feedback.</p>
+    <a href="quiz.html" class="card-link">Generate quiz <i class="fa-solid fa-arrow-right"></i></a>
+  </div>
+  <div class="card">
+    <div class="card-icon green"><i class="fa-solid fa-calendar-check"></i></div>
+    <h3>Study Planner</h3>
+    <p>Set daily study goals, mark them complete, and track your progress with a visual streak counter to stay motivated.</p>
+    <a href="planner.html" class="card-link">Plan today <i class="fa-solid fa-arrow-right"></i></a>
+  </div>
+  <div class="card">
+    <div class="card-icon yellow"><i class="fa-solid fa-lightbulb"></i></div>
+    <h3>Resource Recommender</h3>
+    <p>Ask the AI tutor to recommend the best study resources, YouTube channels, books, or websites for any subject.</p>
+    <a href="tutor.html" class="card-link">Get resources <i class="fa-solid fa-arrow-right"></i></a>
+  </div>
+</div>
+
+<!-- SDG SECTION -->
+<div class="section-title">
+  <h2>Our Mission — SDG 4: Quality Education</h2>
+  <p>Bridging the education gap with artificial intelligence</p>
+</div>
+<div class="cards-grid" style="padding-bottom:80px">
+  <div class="card" style="border-color:rgba(16,185,129,.25)">
+    <div style="font-size:2rem;margin-bottom:12px">🌍</div>
+    <h3>The Problem</h3>
+    <p>Over 300 million students worldwide lack access to qualified tutors. Personalised learning remains a privilege of the few.</p>
+  </div>
+  <div class="card" style="border-color:rgba(59,130,246,.25)">
+    <div style="font-size:2rem;margin-bottom:12px">🤖</div>
+    <h3>Our AI Solution</h3>
+    <p>EduAI uses Google Gemini to provide every student with a 24/7 personalised tutor, quiz generator, and study planner — for free.</p>
+  </div>
+  <div class="card" style="border-color:rgba(139,92,246,.25)">
+    <div style="font-size:2rem;margin-bottom:12px">📈</div>
+    <h3>The Impact</h3>
+    <p>Students can self-study effectively at their own pace, reducing dependence on costly private tuition and improving learning outcomes.</p>
+  </div>
+</div>
+
+<footer>
+  <p>🎓 EduAI &nbsp;|&nbsp; Built for UN SDG 4 – Quality Education &nbsp;|&nbsp; Powered by Google Gemini AI</p>
+  <p style="margin-top:6px">AI Internship Final Project &nbsp;·&nbsp; Atharv Kudtarkar</p>
+</footer>
+
+<script src="app.js"></script>
+<script>
+  const s = getStats();
+  document.getElementById('statSessions').textContent = s.sessions;
+  document.getElementById('statQuizzes').textContent  = s.quizzes;
+  document.getElementById('statGoals').textContent    = s.goals_done;
+  document.getElementById('statStreak').textContent   = s.streak;
+</script>
+</body>
+</html>

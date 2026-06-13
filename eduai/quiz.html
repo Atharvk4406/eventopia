@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Quiz Generator – EduAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand"><div class="logo-icon">🎓</div><span>EduAI</span></a>
+  <div class="nav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="tutor.html">AI Tutor</a>
+    <a href="quiz.html" class="active">Quiz</a>
+    <a href="planner.html">Planner</a>
+    <a href="#" class="nav-sdg">SDG 4 – Quality Education</a>
+  </div>
+</nav>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1><i class="fa-solid fa-circle-question" style="color:var(--purple)"></i> AI Quiz Generator</h1>
+    <p>Gemini AI creates custom multiple-choice questions on any topic · Test your knowledge instantly</p>
+  </div>
+
+  <div class="quiz-container">
+    <!-- SETUP -->
+    <div class="quiz-setup" id="quizSetup">
+      <div style="margin-bottom:20px">
+        <label>Topic or Subject</label>
+        <input class="input-field" id="quizTopic" placeholder="e.g. Photosynthesis, Quadratic Equations, World War II..." style="margin-top:8px">
+      </div>
+      <div style="margin-bottom:24px">
+        <label>Difficulty Level</label>
+        <div class="difficulty-row">
+          <button class="diff-btn selected" onclick="selectDiff(this,'Easy')">🟢 Easy</button>
+          <button class="diff-btn" onclick="selectDiff(this,'Medium')">🟡 Medium</button>
+          <button class="diff-btn" onclick="selectDiff(this,'Hard')">🔴 Hard</button>
+        </div>
+      </div>
+      <button class="btn btn-purple" onclick="generateQuiz()" id="genBtn" style="width:100%;justify-content:center">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Quiz with AI
+      </button>
+      <p id="genStatus" style="text-align:center;color:var(--muted);font-size:.85rem;margin-top:12px"></p>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div id="quizQuestions" style="display:none"></div>
+
+    <!-- SCORE -->
+    <div class="score-card" id="scoreCard" style="display:none">
+      <div class="score-circle"><span id="scoreText">0/5</span></div>
+      <h2 id="scoreMsgTitle" style="font-size:1.5rem;font-weight:800;margin-bottom:8px"></h2>
+      <p id="scoreMsg" style="color:var(--muted);margin-bottom:28px"></p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="retakeQuiz()"><i class="fa-solid fa-rotate"></i> Retake Quiz</button>
+        <button class="btn btn-outline" onclick="newQuiz()"><i class="fa-solid fa-plus"></i> New Topic</button>
+        <a href="tutor.html" class="btn btn-outline"><i class="fa-solid fa-robot"></i> Study with AI Tutor</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+let difficulty = 'Easy';
+let questions = [];
+let answers = [];
+let score = 0;
+
+function selectDiff(btn, d) {
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  difficulty = d;
+}
+
+async function generateQuiz() {
+  const topic = document.getElementById('quizTopic').value.trim();
+  if (!topic) { showToast('Please enter a topic first!'); return; }
+
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  document.getElementById('genStatus').textContent = '⏳ Generating your quiz with Gemini AI...';
+
+  const prompt = `Create exactly 5 multiple-choice quiz questions about "${topic}" at ${difficulty} difficulty level for a student.
+
+Return ONLY a valid JSON array in this exact format with no other text:
+[
+  {
+    "question": "Question text here?",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correct": 0
+  }
+]
+
+Rules:
+- "correct" is the 0-based index of the correct answer in options array
+- Make questions educational and clear
+- Make wrong options plausible but clearly incorrect
+- Return ONLY the JSON array, nothing else`;
+
+  try {
+    const raw = await askGemini(prompt);
+    // Extract JSON from response
+    const match = raw.match(/\[[\s\S]*\]/);
+    if (!match) throw new Error('No JSON found');
+    questions = JSON.parse(match[0]);
+    if (!Array.isArray(questions) || questions.length === 0) throw new Error('Invalid format');
+
+    answers = new Array(questions.length).fill(null);
+    score = 0;
+    renderQuestions();
+    document.getElementById('genStatus').textContent = '';
+    btn.disabled = false;
+  } catch (e) {
+    console.warn("Gemini API Quiz Generation failed, using offline generator:", e);
+    showToast('Offline Mode: Generated quiz locally');
+    questions = getFallbackQuiz(topic, difficulty);
+    answers = new Array(questions.length).fill(null);
+    score = 0;
+    renderQuestions();
+    document.getElementById('genStatus').textContent = '';
+    btn.disabled = false;
+  }
+}
+
+function renderQuestions() {
+  document.getElementById('quizSetup').style.display = 'none';
+  document.getElementById('scoreCard').style.display = 'none';
+  const container = document.getElementById('quizQuestions');
+  container.style.display = 'block';
+  container.innerHTML = '';
+
+  questions.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `q${qi}`;
+    const opts = q.options.map((opt, oi) =>
+      `<button class="option-btn" id="opt_${qi}_${oi}" onclick="selectAnswer(${qi},${oi})">${String.fromCharCode(65+oi)}. ${opt}</button>`
+    ).join('');
+    card.innerHTML = `
+      <div class="question-num">Question ${qi+1} of ${questions.length} · <span class="tag tag-purple">${difficulty}</span></div>
+      <div class="question-text">${q.question}</div>
+      ${opts}`;
+    container.appendChild(card);
+  });
+
+  const submitBtn = document.createElement('button');
+  submitBtn.className = 'btn btn-purple';
+  submitBtn.id = 'submitBtn';
+  submitBtn.style = 'width:100%;justify-content:center;margin-top:8px';
+  submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Submit Answers';
+  submitBtn.onclick = submitQuiz;
+  container.appendChild(submitBtn);
+}
+
+function selectAnswer(qi, oi) {
+  // Clear previous selection for this question
+  questions[qi].options.forEach((_, i) => {
+    const b = document.getElementById(`opt_${qi}_${i}`);
+    b.classList.remove('correct', 'wrong');
+    b.style.borderColor = '';
+    b.style.background = '';
+  });
+  answers[qi] = oi;
+  document.getElementById(`opt_${qi}_${oi}`).style.borderColor = 'var(--blue)';
+  document.getElementById(`opt_${qi}_${oi}`).style.background = 'rgba(59,130,246,.15)';
+}
+
+function submitQuiz() {
+  if (answers.some(a => a === null)) { showToast('Please answer all questions!'); return; }
+
+  score = 0;
+  questions.forEach((q, qi) => {
+    const correct = q.correct;
+    const chosen  = answers[qi];
+    questions[qi].options.forEach((_, oi) => {
+      const b = document.getElementById(`opt_${qi}_${oi}`);
+      b.disabled = true;
+      b.style.borderColor = '';
+      b.style.background = '';
+      b.classList.remove('correct','wrong');
+      if (oi === correct) b.classList.add('correct');
+      else if (oi === chosen && oi !== correct) b.classList.add('wrong');
+    });
+    if (chosen === correct) score++;
+  });
+
+  document.getElementById('submitBtn').remove();
+
+  setTimeout(() => {
+    document.getElementById('quizQuestions').style.display = 'none';
+    showScore();
+  }, 1800);
+}
+
+function showScore() {
+  document.getElementById('scoreCard').style.display = 'block';
+  document.getElementById('scoreText').textContent = `${score}/5`;
+  const pct = score / 5;
+  let title, msg;
+  if (pct === 1)       { title = '🏆 Perfect Score!';      msg = 'Outstanding! You mastered this topic completely.'; }
+  else if (pct >= 0.8) { title = '⭐ Excellent!';           msg = 'Great job! You have a solid understanding of the topic.'; }
+  else if (pct >= 0.6) { title = '👍 Good Effort!';        msg = 'Not bad! Review the missed questions with the AI Tutor.'; }
+  else if (pct >= 0.4) { title = '📖 Keep Studying!';      msg = 'A bit more practice needed. Use the AI Tutor to review.'; }
+  else                 { title = '💪 Don\'t Give Up!';      msg = 'Start with the AI Tutor to build your foundation first.'; }
+
+  document.getElementById('scoreMsgTitle').textContent = title;
+  document.getElementById('scoreMsg').textContent = msg;
+  bumpStat('quizzes');
+  showToast('Quiz completed! Score: ' + score + '/5');
+}
+
+function retakeQuiz() {
+  answers = new Array(questions.length).fill(null);
+  score   = 0;
+  renderQuestions();
+  document.getElementById('scoreCard').style.display = 'none';
+}
+
+function newQuiz() {
+  questions = []; answers = []; score = 0;
+  document.getElementById('quizSetup').style.display = 'block';
+  document.getElementById('quizQuestions').style.display = 'none';
+  document.getElementById('scoreCard').style.display = 'none';
+  document.getElementById('genBtn').disabled = false;
+  document.getElementById('genStatus').textContent = '';
+}
+
+// ── OFFLINE QUIZ DATABASE & GENERATOR ─────────────────────────────────────────
+const PREBAKED_QUIZZES = {
+  'photosynthesis': [
+    {
+      question: "Which organelle is the primary site of photosynthesis in plant cells?",
+      options: ["Mitochondria", "Chloroplast", "Nucleus", "Ribosome"],
+      correct: 1
+    },
+    {
+      question: "What is the green pigment that absorbs light energy during photosynthesis?",
+      options: ["Carotenoid", "Anthocyanin", "Chlorophyll", "Hemoglobin"],
+      correct: 2
+    },
+    {
+      question: "What are the primary reactants needed for photosynthesis to take place?",
+      options: ["Glucose and Oxygen", "Carbon Dioxide, Water, and Sunlight", "Oxygen and Carbon Dioxide", "Nitrogen and Water"],
+      correct: 1
+    },
+    {
+      question: "Which gas is released as a byproduct of the light-dependent reactions?",
+      options: ["Carbon Dioxide", "Oxygen", "Nitrogen", "Hydrogen"],
+      correct: 1
+    },
+    {
+      question: "In which part of the chloroplast does the Calvin Cycle (light-independent reactions) occur?",
+      options: ["Thylakoid Membrane", "Stroma", "Outer Membrane", "Intermembrane Space"],
+      correct: 1
+    }
+  ],
+  'quadratic equations': [
+    {
+      question: "What is the standard form of a quadratic equation?",
+      options: ["ax + b = 0", "ax^2 + bx + c = 0", "y = mx + c", "ax^3 + bx^2 + cx + d = 0"],
+      correct: 1
+    },
+    {
+      question: "In the quadratic formula, what is the term (b^2 - 4ac) called?",
+      options: ["Denominator", "Numerator", "Discriminant", "Derivator"],
+      correct: 2
+    },
+    {
+      question: "If the discriminant of a quadratic equation is negative, what is the nature of the roots?",
+      options: ["Two real and equal roots", "Two real and distinct roots", "No real roots (two complex roots)", "Infinite real roots"],
+      correct: 2
+    },
+    {
+      question: "Solve the equation: x^2 - 5x + 6 = 0. What are the values of x?",
+      options: ["x = 2, 3", "x = -2, -3", "x = 1, 6", "x = -1, -6"],
+      correct: 0
+    },
+    {
+      question: "What shape is the graph of a quadratic equation when plotted?",
+      options: ["Straight line", "Circle", "Hyperbola", "Parabola"],
+      correct: 3
+    }
+  ],
+  'world war ii': [
+    {
+      question: "In which year did World War II begin?",
+      options: ["1914", "1918", "1939", "1945"],
+      correct: 2
+    },
+    {
+      question: "Which country's invasion by Germany prompted Britain and France to declare war?",
+      options: ["Austria", "Czechoslovakia", "Poland", "Belgium"],
+      correct: 2
+    },
+    {
+      question: "What was the code name for the Allied invasion of Normandy on June 6, 1944 (D-Day)?",
+      options: ["Operation Barbarossa", "Operation Overlord", "Operation Sea Lion", "Operation Torch"],
+      correct: 1
+    },
+    {
+      question: "Who was the Prime Minister of Great Britain during most of World War II?",
+      options: ["Neville Chamberlain", "Winston Churchill", "Clement Attlee", "Franklin D. Roosevelt"],
+      correct: 1
+    },
+    {
+      question: "Which international organization was founded in 1945 to prevent future global conflicts?",
+      options: ["League of Nations", "United Nations", "NATO", "European Union"],
+      correct: 1
+    }
+  ],
+  'computer science': [
+    {
+      question: "What is the time complexity of searching in a balanced Binary Search Tree (BST)?",
+      options: ["O(1)", "O(n)", "O(log n)", "O(n log n)"],
+      correct: 2
+    },
+    {
+      question: "Which data structure operates on a Last-In, First-Out (LIFO) basis?",
+      options: ["Queue", "Stack", "Linked List", "Graph"],
+      correct: 1
+    },
+    {
+      question: "What does HTML stand for?",
+      options: ["Hyper Text Markup Language", "High Tech Multi Language", "Hyperlink Text Management Language", "Home Tool Markup Language"],
+      correct: 0
+    },
+    {
+      question: "Which of the following is NOT a programming language?",
+      options: ["Python", "Java", "HTML", "C++"],
+      correct: 2
+    },
+    {
+      question: "In Python, which keyword is used to define a function?",
+      options: ["func", "def", "function", "define"],
+      correct: 1
+    }
+  ],
+  'gravitation': [
+    {
+      question: "What is the value of the acceleration due to gravity (g) on the Earth's surface?",
+      options: ["9.8 m/s^2", "1.6 m/s^2", "9.8 N", "3.0 x 10^8 m/s^2"],
+      correct: 0
+    },
+    {
+      question: "Who formulated the Universal Law of Gravitation?",
+      options: ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Johannes Kepler"],
+      correct: 1
+    },
+    {
+      question: "How does the gravitational force between two objects change if the distance between them is doubled?",
+      options: ["It is doubled", "It is halved", "It increases by four times", "It decreases to one-fourth"],
+      correct: 3
+    },
+    {
+      question: "What is the escape velocity of Earth?",
+      options: ["11.2 km/s", "9.8 km/s", "3.0 km/s", "11.2 m/s"],
+      correct: 0
+    },
+    {
+      question: "Which force keeps planets in orbit around the Sun?",
+      options: ["Electromagnetic force", "Gravitational force", "Centrifugal force", "Nuclear force"],
+      correct: 1
+    }
+  ]
+};
+
+function getFallbackQuiz(topic, difficulty) {
+  const cleanTopic = topic.toLowerCase().trim();
+  
+  // Try to find a prebaked match
+  let key = Object.keys(PREBAKED_QUIZZES).find(k => cleanTopic.includes(k) || k.includes(cleanTopic));
+  if (key && PREBAKED_QUIZZES[key]) {
+    // Return a copy of the prebaked quiz
+    return JSON.parse(JSON.stringify(PREBAKED_QUIZZES[key]));
+  }
+  
+  // Dynamic template quiz generator
+  return [
+    {
+      question: `Which of the following best defines the primary concept of "${topic}"?`,
+      options: [
+        `A fundamental principle or subject of study representing key analytical patterns.`,
+        `A temporary phenomenon that has no scientific or practical relevance.`,
+        `An obsolete theory that was disproven in early twentieth-century research.`,
+        `A recreational term used exclusively in literature and media.`
+      ],
+      correct: 0
+    },
+    {
+      question: `When analyzing "${topic}", why is structured research and study important?`,
+      options: [
+        `It has no value; self-study without guidance is always optimal.`,
+        `It allows learners to build a systematic understanding of its key variables.`,
+        `It is purely used to fill school schedules and exams.`,
+        `It helps restrict the circulation of knowledge to professionals.`
+      ],
+      correct: 1
+    },
+    {
+      question: `Which of the following is a major component or sub-topic related to "${topic}"?`,
+      options: [
+        `A set of core frameworks that define its rules, variables, and applications.`,
+        `An entirely unrelated set of arbitrary facts.`,
+        `A collection of fictional essays written by early novelists.`,
+        `A list of random numbers with no logical sequence.`
+      ],
+      correct: 0
+    },
+    {
+      question: `What is a common challenge students face when first learning about "${topic}"?`,
+      options: [
+        `Textbooks on this topic are strictly prohibited worldwide.`,
+        `The concepts violate basic human reasoning and laws of science.`,
+        `Synthesizing abstract theories and applying them to practical exercises.`,
+        `There is absolutely no information available on the internet about it.`
+      ],
+      correct: 2
+    },
+    {
+      question: `How does mastering "${topic}" contribute to SDG 4 (Quality Education) goals?`,
+      options: [
+        `It encourages critical thinking, specialized knowledge, and problem-solving skills.`,
+        `It reduces the amount of time students spend studying other subjects.`,
+        `It increases the cost of tutoring and private coaching.`,
+        `It replaces the need for schools and teachers entirely.`
+      ],
+      correct: 0
+    }
+  ];
+}
+</script>
+</body>
+</html>

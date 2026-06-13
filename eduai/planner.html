@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Study Planner – EduAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand"><div class="logo-icon">🎓</div><span>EduAI</span></a>
+  <div class="nav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="tutor.html">AI Tutor</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="planner.html" class="active">Planner</a>
+    <a href="#" class="nav-sdg">SDG 4 – Quality Education</a>
+  </div>
+</nav>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1><i class="fa-solid fa-calendar-check" style="color:var(--green)"></i> Study Planner</h1>
+    <p>Set daily study goals · Track your progress · Build a consistent study streak</p>
+  </div>
+
+  <div class="planner-grid">
+    <!-- LEFT: GOALS -->
+    <div>
+      <!-- Add Goal Form -->
+      <div class="add-goal-form">
+        <h3><i class="fa-solid fa-plus" style="color:var(--green)"></i> Add Study Goal</h3>
+        <div style="display:flex;gap:10px;margin-bottom:12px">
+          <input class="input-field" id="goalText" placeholder="e.g. Study Chapter 5 of Physics" style="flex:1">
+          <select class="input-field" id="goalSubject" style="width:160px">
+            <option>Mathematics</option>
+            <option>Physics</option>
+            <option>Chemistry</option>
+            <option>Biology</option>
+            <option>Computer Science</option>
+            <option>English</option>
+            <option>History</option>
+            <option>Geography</option>
+            <option>Economics</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select class="input-field" id="goalTime" style="width:140px">
+            <option>30 minutes</option>
+            <option>1 hour</option>
+            <option>1.5 hours</option>
+            <option>2 hours</option>
+            <option>3 hours</option>
+          </select>
+          <button class="btn btn-green" onclick="addGoal()" style="flex:1;justify-content:center">
+            <i class="fa-solid fa-plus"></i> Add Goal
+          </button>
+        </div>
+      </div>
+
+      <!-- Goals List -->
+      <div id="goalsList"></div>
+    </div>
+
+    <!-- RIGHT: PROGRESS SIDEBAR -->
+    <div>
+      <div class="progress-sidebar">
+        <h3><i class="fa-solid fa-chart-line" style="color:var(--blue)"></i> Today's Progress</h3>
+        <div style="display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)">
+          <span id="progressLabel">0 / 0 goals done</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+        </div>
+
+        <div class="streak-display">
+          <div class="streak-num" id="streakNum">0</div>
+          <p>🔥 Day Study Streak</p>
+        </div>
+
+        <div style="margin-top:20px">
+          <h3 style="font-size:.9rem;font-weight:700;margin-bottom:12px"><i class="fa-solid fa-book" style="color:var(--purple)"></i> By Subject</h3>
+          <div id="subjectBreakdown"></div>
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <button class="btn btn-outline btn-sm" onclick="clearDone()" style="width:100%;justify-content:center">
+            <i class="fa-solid fa-check-double"></i> Clear Completed Goals
+          </button>
+        </div>
+      </div>
+
+      <!-- AI Suggestion -->
+      <div class="card" style="margin-top:20px;border-color:rgba(59,130,246,.2)">
+        <div class="card-icon blue" style="width:40px;height:40px;font-size:1.1rem"><i class="fa-solid fa-robot"></i></div>
+        <h3 style="font-size:.95rem">AI Study Tip</h3>
+        <p id="aiTip" style="font-size:.85rem">Loading AI study tip...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+const SUBJECT_COLORS = {
+  Mathematics:'blue', Physics:'purple', Chemistry:'yellow', Biology:'green',
+  'Computer Science':'blue', English:'green', History:'yellow', Geography:'purple', Economics:'blue'
+};
+
+function loadGoals() { return LS.get('eduai_goals', []); }
+function saveGoals(g) { LS.set('eduai_goals', g); }
+
+function renderGoals() {
+  const goals = loadGoals();
+  const list  = document.getElementById('goalsList');
+
+  if (goals.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No goals yet. Add your first study goal above!</p></div>`;
+    updateProgress([]);
+    return;
+  }
+
+  list.innerHTML = goals.map((g, i) => {
+    const color = SUBJECT_COLORS[g.subject] || 'blue';
+    return `<div class="goal-item ${g.done ? 'done' : ''}" id="goal_${i}">
+      <div class="goal-check ${g.done ? 'checked' : ''}" onclick="toggleGoal(${i})">
+        ${g.done ? '<i class="fa-solid fa-check" style="color:#fff;font-size:.7rem"></i>' : ''}
+      </div>
+      <div style="flex:1">
+        <div style="font-size:.9rem;font-weight:500">${g.text}</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:3px"><i class="fa-solid fa-clock"></i> ${g.time}</div>
+      </div>
+      <span class="goal-subject-tag tag tag-${color}">${g.subject}</span>
+      <button class="goal-del" onclick="deleteGoal(${i})"><i class="fa-solid fa-xmark"></i></button>
+    </div>`;
+  }).join('');
+
+  updateProgress(goals);
+}
+
+function updateProgress(goals) {
+  const total = goals.length;
+  const done  = goals.filter(g => g.done).length;
+  const pct   = total ? Math.round(done / total * 100) : 0;
+
+  document.getElementById('progressLabel').textContent = `${done} / ${total} goals done`;
+  document.getElementById('progressPct').textContent   = pct + '%';
+  document.getElementById('progressBar').style.width   = pct + '%';
+
+  const s = getStats();
+  document.getElementById('streakNum').textContent = s.streak || 0;
+
+  // Subject breakdown
+  const subjects = {};
+  goals.forEach(g => {
+    if (!subjects[g.subject]) subjects[g.subject] = { total:0, done:0 };
+    subjects[g.subject].total++;
+    if (g.done) subjects[g.subject].done++;
+  });
+  const color = SUBJECT_COLORS;
+  document.getElementById('subjectBreakdown').innerHTML = Object.entries(subjects).map(([sub, cnt]) =>
+    `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span class="tag tag-${color[sub]||'blue'}" style="font-size:.72rem;min-width:90px">${sub}</span>
+      <div style="flex:1;background:rgba(255,255,255,.06);border-radius:10px;height:7px">
+        <div style="width:${cnt.total ? cnt.done/cnt.total*100 : 0}%;height:100%;border-radius:10px;background:var(--green)"></div>
+      </div>
+      <span style="font-size:.75rem;color:var(--muted)">${cnt.done}/${cnt.total}</span>
+    </div>`
+  ).join('') || '<p style="font-size:.82rem;color:var(--muted)">No subjects tracked yet.</p>';
+}
+
+function addGoal() {
+  const text    = document.getElementById('goalText').value.trim();
+  const subject = document.getElementById('goalSubject').value;
+  const time    = document.getElementById('goalTime').value;
+  if (!text) { showToast('Enter a goal first!'); return; }
+
+  const goals = loadGoals();
+  goals.push({ text, subject, time, done: false, created: Date.now() });
+  saveGoals(goals);
+  document.getElementById('goalText').value = '';
+  renderGoals();
+  showToast('Goal added!');
+}
+
+function toggleGoal(i) {
+  const goals = loadGoals();
+  goals[i].done = !goals[i].done;
+  if (goals[i].done) bumpStat('goals_done');
+  saveGoals(goals);
+  renderGoals();
+  if (goals[i].done) showToast('Goal complete! 🎉');
+}
+
+function deleteGoal(i) {
+  const goals = loadGoals();
+  goals.splice(i, 1);
+  saveGoals(goals);
+  renderGoals();
+}
+
+function clearDone() {
+  const goals = loadGoals().filter(g => !g.done);
+  saveGoals(goals);
+  renderGoals();
+  showToast('Cleared completed goals!');
+}
+
+// AI Study Tip
+async function loadAITip() {
+  const tips = [
+    "Use the Pomodoro Technique: study for 25 minutes, then take a 5-minute break.",
+    "Active recall — test yourself rather than just re-reading your notes.",
+    "Teach what you've learned to someone else. If you can't explain it simply, you don't know it yet.",
+    "Space repetition: review topics after 1 day, 3 days, 1 week, and 1 month.",
+    "Write summaries in your own words after each study session."
+  ];
+  document.getElementById('aiTip').textContent = tips[Math.floor(Math.random() * tips.length)];
+
+  try {
+    const tip = await askGemini("Give ONE practical, specific study tip for a high school student in under 30 words. Be direct and actionable. No introduction, just the tip.");
+    document.getElementById('aiTip').textContent = tip.trim().replace(/^["']|["']$/g,'');
+  } catch {}
+}
+
+renderGoals();
+loadAITip();
+
+// Enter key for adding goal
+document.getElementById('goalText').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addGoal();
+});
+</script>
+</body>
+</html>

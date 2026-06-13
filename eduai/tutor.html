@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AI Tutor – EduAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-brand"><div class="logo-icon">🎓</div><span>EduAI</span></a>
+  <div class="nav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="tutor.html" class="active">AI Tutor</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="planner.html">Planner</a>
+    <a href="#" class="nav-sdg">SDG 4 – Quality Education</a>
+  </div>
+</nav>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1><i class="fa-solid fa-robot" style="color:var(--blue)"></i> AI Subject Tutor</h1>
+    <p>Powered by Google Gemini · Ask anything about any subject · Get clear, structured explanations</p>
+  </div>
+
+  <div class="chat-layout">
+    <!-- SUBJECT SIDEBAR -->
+    <div class="subject-sidebar">
+      <h3>Subjects</h3>
+      <button class="subject-btn active" onclick="setSubject(this,'Mathematics')">➕ Mathematics</button>
+      <button class="subject-btn" onclick="setSubject(this,'Physics')">⚛️ Physics</button>
+      <button class="subject-btn" onclick="setSubject(this,'Chemistry')">🧪 Chemistry</button>
+      <button class="subject-btn" onclick="setSubject(this,'Biology')">🧬 Biology</button>
+      <button class="subject-btn" onclick="setSubject(this,'Computer Science')">💻 Computer Science</button>
+      <button class="subject-btn" onclick="setSubject(this,'English Literature')">📖 English</button>
+      <button class="subject-btn" onclick="setSubject(this,'History')">🏛️ History</button>
+      <button class="subject-btn" onclick="setSubject(this,'Geography')">🌍 Geography</button>
+      <button class="subject-btn" onclick="setSubject(this,'Economics')">📊 Economics</button>
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+        <h3>Quick Prompts</h3>
+        <button class="subject-btn" onclick="quickPrompt('Explain this concept simply with an example')">💡 Explain with Example</button>
+        <button class="subject-btn" onclick="quickPrompt('Recommend the best resources to learn this subject')">📚 Recommend Resources</button>
+        <button class="subject-btn" onclick="quickPrompt('Give me 3 important formulas or facts for this subject')">📋 Key Formulas / Facts</button>
+      </div>
+    </div>
+
+    <!-- CHAT MAIN -->
+    <div class="chat-main">
+      <div class="chat-header">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:10px;display:grid;place-items:center">🤖</div>
+        <div>
+          <div class="subject-label" id="currentSubject">Mathematics</div>
+          <div style="font-size:.75rem;color:var(--green)">● Gemini AI · Online</div>
+        </div>
+        <div class="ai-badge" style="margin-left:auto">Google Gemini 2.0</div>
+        <button class="btn btn-outline btn-sm" onclick="clearChat()" style="margin-left:8px"><i class="fa-solid fa-trash"></i> Clear</button>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg msg-ai">
+          👋 <strong>Hello! I'm your AI Tutor.</strong><br><br>
+          I'm powered by Google Gemini and ready to help you with <strong>Mathematics</strong> (or any subject — just pick one on the left).<br><br>
+          Ask me anything: explain a concept, solve a problem, give examples, or recommend resources. <strong>Let's learn! 🚀</strong>
+        </div>
+      </div>
+
+      <div class="chat-input-row">
+        <textarea id="chatInput" rows="2" placeholder="Ask your tutor anything... (Press Enter to send, Shift+Enter for new line)"></textarea>
+        <button class="btn btn-primary" onclick="sendMessage()" id="sendBtn">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+let currentSubject = 'Mathematics';
+let chatHistory = [];
+
+function setSubject(btn, subject) {
+  document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentSubject = subject;
+  document.getElementById('currentSubject').textContent = subject;
+}
+
+function quickPrompt(prefix) {
+  document.getElementById('chatInput').value = prefix + ' for ' + currentSubject;
+  sendMessage();
+}
+
+function addMsg(html, type) {
+  const box = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-' + type;
+  div.innerHTML = html;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+function showTyping() {
+  const box = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'typing-indicator';
+  div.id = 'typing';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function hideTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+async function sendMessage() {
+  const inp = document.getElementById('chatInput');
+  const text = inp.value.trim();
+  if (!text) return;
+
+  inp.value = '';
+  addMsg(text, 'user');
+  document.getElementById('sendBtn').disabled = true;
+  showTyping();
+
+  const prompt = `You are an expert tutor specialising in ${currentSubject} for high school and university students.
+The student asks: "${text}"
+Give a clear, well-structured, educational response. Use simple language.
+Format with bold headings using **text**, use examples, and keep it concise but complete.
+If it's a maths problem, show step-by-step working. Respond in plain text with **bold** for emphasis.`;
+
+  try {
+    const reply = await askGemini(prompt);
+    hideTyping();
+    addMsg(formatAI(reply), 'ai');
+    bumpStat('sessions');
+    chatHistory.push({ q: text, a: reply });
+    LS.set('tutor_history', chatHistory.slice(-20));
+  } catch (e) {
+    hideTyping();
+    console.warn("Gemini API Error, using local fallback:", e);
+    const fallbackReply = getFallbackTutorResponse(currentSubject, text);
+    addMsg(formatAI(fallbackReply), 'ai');
+    showToast('Offline Mode: Loaded study guide');
+    bumpStat('sessions');
+    chatHistory.push({ q: text, a: fallbackReply });
+    LS.set('tutor_history', chatHistory.slice(-20));
+  }
+  document.getElementById('sendBtn').disabled = false;
+}
+
+function clearChat() {
+  document.getElementById('chatMessages').innerHTML = `
+    <div class="msg msg-ai">Chat cleared! Ask me anything about <strong>${currentSubject}</strong> 🎓</div>`;
+  chatHistory = [];
+}
+
+// Enter to send
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+// Load history
+chatHistory = LS.get('tutor_history', []);
+</script>
+</body>
+</html>
